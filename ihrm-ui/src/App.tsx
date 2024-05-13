@@ -1,23 +1,19 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+
 import './App.css'
 import Header from './components/Header'
 import MainContent from './components/MainContent'
 import Sidebar from './components/Sidebar'
 
 function App() {
-
   return (
     <>
-     <div className="dashboard">
-      <Header />
-      <div className="content">
-        <Sidebar />
-        <MainContent />
+      <div className='dashboard'>
+        <Header />
+        <div className='content'>
+          <Sidebar />
+          <MainContent />
+        </div>
       </div>
-      
-    </div>
     </>
   )
 }

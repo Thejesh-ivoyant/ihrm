@@ -1,10 +1,9 @@
-
 .dashboard {
   display: flex;
   flex-direction: column;
   width: 100%;
 }
-.content{
+.content {
   display: flex;
   flex-direction: row;
 }
@@ -29,11 +28,11 @@
   flex-direction: column;
 }
 
-.main-content-heading{
+.main-content-heading {
   display: flex;
-  width:100%;
+  width: 100%;
 }
-.main-content-subheading{
+.main-content-subheading {
   display: flex;
-  width:100%;
+  width: 100%;
 }

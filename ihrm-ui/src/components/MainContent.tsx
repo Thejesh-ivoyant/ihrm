@@ -1,5 +1,3 @@
-import React from 'react'
-
 function MainContent() {
   return (
     <main className='main-content'>

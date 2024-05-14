@@ -4,13 +4,13 @@ function Sidebar() {
       <h2>Navigation</h2>
       <ul>
         <li>
-          <a href='#'>Home</a>
+          <a href='/'>Home</a>
         </li>
         <li>
-          <a href='#'>Analytics</a>
+          <a href='/analytics'>Analytics</a>
         </li>
         <li>
-          <a href='#'>Settings</a>
+          <a href='/settings'>Settings</a>
         </li>
       </ul>
     </div>

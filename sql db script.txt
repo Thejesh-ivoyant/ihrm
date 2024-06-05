@@ -5,9 +5,12 @@ CREATE TABLE Users (
     Username VARCHAR(100) UNIQUE NOT NULL,
     PasswordHash VARCHAR(255) NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
+    FailedLoginAttempts INT, 
+    LockoutEnd DATETIME2,
     CreatedAt DATETIME2 DEFAULT CURRENT_TIMESTAMP,
     UpdatedAt DATETIME2 DEFAULT CURRENT_TIMESTAMP
 );
+
 
 -- OAuthClients Table
 CREATE TABLE OAuthClients (
@@ -124,8 +127,8 @@ CREATE TABLE LeaveRecords (
 
 --Leave Types
 CREATE TABLE LeaveTypes (
-    LeaveTypeID INT IDENTITY(1,1) PRIMARY KEY,
-    LeaveType NVARCHAR(50) NOT NULL UNIQUE
+    LeaveTypeID INT PRIMARY KEY,
+    LeaveTypeName NVARCHAR(50) NOT NULL UNIQUE
 );
 
 -- LeaveEncashment Table
@@ -293,5 +296,3 @@ CREATE TABLE PerformanceAppraisals (
     FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID),
     FOREIGN KEY (ReviewerID) REFERENCES Employees(EmployeeID)
 );
-
-

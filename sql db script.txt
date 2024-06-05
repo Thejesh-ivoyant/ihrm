@@ -9,7 +9,6 @@ CREATE TABLE Users (
     UpdatedAt DATETIME2 DEFAULT CURRENT_TIMESTAMP
 );
 
-
 -- OAuthClients Table
 CREATE TABLE OAuthClients (
     ClientID VARCHAR(100) PRIMARY KEY,

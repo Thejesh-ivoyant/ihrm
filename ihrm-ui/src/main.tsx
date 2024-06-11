@@ -7,6 +7,7 @@ import { store } from "./store"
 import { PersistGate } from "redux-persist/integration/react"
 import { ConfigProvider } from "antd"
 import persistStore from "redux-persist/es/persistStore"
+import { ThemeProvider } from './theme/ThemeProvider.tsx'
 
 const persistor = persistStore(store);
 
@@ -22,9 +23,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             },
           }}
         >
-          {/* <ThemeProvider> */}
+          <ThemeProvider>
             <App />
-          {/* </ThemeProvider> */}
+          </ThemeProvider>
         </ConfigProvider>
       </PersistGate>
     </Provider>

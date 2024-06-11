@@ -1,7 +1,7 @@
-import { UserSettingsActions, UserSettingsState } from "./types";
-import * as constants from "./constants";
+import { UserSettingsActions, UserSettingsState } from './types'
+import * as constants from './constants'
 
-const initialState: UserSettingsState = {};
+const initialState: UserSettingsState = {}
 
 const userSettings = (
   state = initialState,
@@ -9,13 +9,13 @@ const userSettings = (
 ): UserSettingsState => {
   switch (action.type) {
     case constants.SET_USER:
-      return action.value;
+      return action.value
     case constants.REMOVE_USER:
-      return {};
+      return {}
 
     default:
-      return state;
+      return state
   }
-};
+}
 
-export default userSettings;
+export default userSettings

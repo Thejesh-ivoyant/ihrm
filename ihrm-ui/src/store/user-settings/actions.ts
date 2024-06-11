@@ -1,5 +1,5 @@
-import * as constants from "./constants";
-import { UserSettingsState } from "./types";
+import * as constants from './constants'
+import { UserSettingsState } from './types'
 
 export const setUser = (value: UserSettingsState) =>
   value?.user
@@ -10,8 +10,8 @@ export const setUser = (value: UserSettingsState) =>
     : {
         type: constants.SET_USER,
         value: value?.user ? { ...value, user: { ...value.user } } : value,
-      };
+      }
 
 export const removeUser = () => ({
   type: constants.REMOVE_USER,
-});
+})

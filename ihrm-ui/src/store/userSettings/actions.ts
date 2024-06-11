@@ -2,7 +2,7 @@ import * as constants from "./constants";
 import { UserSettingsState } from "./types";
 
 export const setUser = (value: UserSettingsState) =>
-  value?.user?.organization
+  value?.user
     ? {
         type: constants.SET_USER,
         value,

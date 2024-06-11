@@ -11,11 +11,19 @@
     "format": "eslint --ext ts,tsx --fix src && prettier --write \"src/**/*.+(js|jsx|json|yml|yaml|css|scss|md|mdx)\""
   },
   "dependencies": {
+    "@ant-design/icons": "^5.3.7",
+    "@reduxjs/toolkit": "^2.2.5",
+    "@types/antd": "^1.0.0",
+    "@types/react-redux": "^7.1.33",
+    "@types/redux-devtools-extension": "^2.13.2",
+    "antd": "^5.18.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-redux": "^9.1.2",
+    "redux-persist": "^6.0.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.66",
+    "@types/react": "^18.3.3",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
     "@typescript-eslint/parser": "^7.2.0",

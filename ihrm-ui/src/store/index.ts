@@ -1,4 +1,5 @@
-import { configureStore } from "@reduxjs/toolkit";
+// src/store/index.ts
+import { configureStore } from '@reduxjs/toolkit';
 import {
   FLUSH,
   REHYDRATE,
@@ -7,20 +8,23 @@ import {
   PURGE,
   REGISTER,
   persistReducer,
-} from "redux-persist";
-import storage from "redux-persist/lib/storage";
-import RootReducer from "./reducer";
+} from 'redux-persist';
+import storage from 'redux-persist/lib/storage';
+// import rootReducer from './reducer'; // Ensure this path is correct
+import userSettings from './user-settings';
 
 const persistConfig = {
-  key: "root",
+  key: 'root',
   storage,
   // blacklist: ["userApplications", "OEApi1", "OEApi2"],
 };
 
-const PersistedReducer = persistReducer(persistConfig, RootReducer);
+const persistedReducer = persistReducer(persistConfig, userSettings);
+
+// const persistedReducer = persistReducer(persistConfig, rootReducer);
 
 export const store = configureStore({
-  reducer: PersistedReducer,
+  reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
@@ -28,9 +32,9 @@ export const store = configureStore({
       },
       immutableCheck: { warnAfter: 128 },
     }),
-      // .concat(api.middleware)
-      // .concat(authapi.middleware),
   devTools: true,
+  // .concat(api.middleware)
+  // .concat(authapi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

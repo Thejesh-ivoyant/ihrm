@@ -14,8 +14,6 @@ export type UserSettingsState = {
   user?: {
     email: string;
     id: string | number;
-    organization: string;
-    orgId: string;
   };
   access_token?: string;
   refresh_token?: string;

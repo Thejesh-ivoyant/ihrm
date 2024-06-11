@@ -1,300 +1,310 @@
 -- Users Table
-CREATE TABLE Users (
-    UserID INT PRIMARY KEY,
-    EmployeeID INT UNIQUE,
-    Username VARCHAR(100) UNIQUE NOT NULL,
-    PasswordHash VARCHAR(255) NOT NULL,
-    Email VARCHAR(100) UNIQUE NOT NULL,
-    FailedLoginAttempts INT, 
-    LockoutEnd DATETIME2,
-    CreatedAt DATETIME2 DEFAULT CURRENT_TIMESTAMP,
-    UpdatedAt DATETIME2 DEFAULT CURRENT_TIMESTAMP
-);
-
-
--- OAuthClients Table
-CREATE TABLE OAuthClients (
-    ClientID VARCHAR(100) PRIMARY KEY,
-    ClientSecret VARCHAR(255) NOT NULL,
-    RedirectUris NVARCHAR(MAX) NOT NULL,
-    GrantTypes NVARCHAR(MAX) NOT NULL,
-    Scope NVARCHAR(MAX) NOT NULL,
-    ClientName VARCHAR(100)
-);
-
--- OAuthTokens Table
-CREATE TABLE OAuthTokens (
-    TokenID INT PRIMARY KEY,
-    AccessToken VARCHAR(255) NOT NULL,
-    RefreshToken VARCHAR(255),
-    ExpiresAt DATETIME2,
-    Scope NVARCHAR(MAX),
-    ClientID VARCHAR(100),
-    UserID INT,
-    FOREIGN KEY (ClientID) REFERENCES OAuthClients(ClientID),
-    FOREIGN KEY (UserID) REFERENCES Users(UserID)
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
+    employee_id UUID UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    failed_login_attempts INT,
+    lockout_end TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Departments Table
-CREATE TABLE Departments (
-    DepartmentID INT PRIMARY KEY,
-    DepartmentName VARCHAR(100) NOT NULL,
-    Description NVARCHAR(MAX)
+CREATE TABLE departments (
+    department_id SERIAL PRIMARY KEY,
+    department_name VARCHAR(50) NOT NULL,
+    description TEXT
 );
 
 -- JobRoles Table
-CREATE TABLE JobRoles (
-    JobRoleID INT PRIMARY KEY,
-    RoleName VARCHAR(100) NOT NULL,
-    Description NVARCHAR(MAX)
+CREATE TABLE job_roles (
+    job_role_id SERIAL PRIMARY KEY,
+    role_name VARCHAR(50) NOT NULL,
+    description TEXT
+);
+
+-- JobRoles Table
+CREATE TABLE employee_tags (
+    tag_id SERIAL PRIMARY KEY,
+    tag_name VARCHAR(50) NOT NULL,
+);
+
+-- Address Table
+CREATE TABLE addresses (
+    address_id SERIAL PRIMARY KEY,
+    address_line VARCHAR(255),
+    city VARCHAR(50),
+    state VARCHAR(50),
+    postal_code VARCHAR(10),
+    country VARCHAR(50)
 );
 
 -- Employees Table
-CREATE TABLE Employees (
-    EmployeeID INT PRIMARY KEY,
-    EmployeeNumber VARCHAR(20) UNIQUE NOT NULL,
-    FirstName VARCHAR(50) NOT NULL,
-    LastName VARCHAR(50) NOT NULL,
-    DateOfBirth DATE NOT NULL,
-    Gender VARCHAR(10),
-    ContactNumber VARCHAR(15),
-    Email VARCHAR(100) UNIQUE NOT NULL,
-    Address VARCHAR(255),
-    City VARCHAR(50),
-    State VARCHAR(50),
-    PostalCode VARCHAR(10),
-    Country VARCHAR(50),
-    DateOfJoining DATE NOT NULL,
-    DepartmentID INT,
-    JobRoleID INT,
-    SupervisorID INT,
-    Status VARCHAR(20) NOT NULL DEFAULT 'Active',
-    LeaveStatus VARCHAR(20) DEFAULT 'None',
-    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID),
-    FOREIGN KEY (JobRoleID) REFERENCES JobRoles(JobRoleID),
-    FOREIGN KEY (SupervisorID) REFERENCES Employees(EmployeeID)
+CREATE TABLE employees (
+    employee_id UUID PRIMARY KEY,
+    employee_number VARCHAR(50) UNIQUE NOT NULL,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    date_of_birth DATE NOT NULL,
+    gender VARCHAR(10),
+    contact_number VARCHAR(15),
+    email VARCHAR(100) UNIQUE NOT NULL,
+    address_id INT, -- Reference to addresses table
+    date_of_joining DATE NOT NULL,
+    department_id INT,
+    basic_salary DECIMAL(15, 2),
+    total_salary DECIMAL(15, 2),
+    job_role_id INT,
+    tag_id INT,
+    profile VARCHAR(255),
+    supervisor_id UUID,
+    status VARCHAR(20) NOT NULL DEFAULT 'Active',
+    leave_status VARCHAR(20) DEFAULT 'None',
+    FOREIGN KEY (department_id) REFERENCES departments(department_id) ON DELETE SET NULL,
+    FOREIGN KEY (job_role_id) REFERENCES job_roles(job_role_id) ON DELETE SET NULL,
+    FOREIGN KEY (tag_id) REFERENCES employee_tags(tag_id) ON DELETE SET NULL,
+    FOREIGN KEY (supervisor_id) REFERENCES employees(employee_id) ON DELETE SET NULL,
+    FOREIGN KEY (address_id) REFERENCES addresses(address_id) ON DELETE SET NULL
 );
 
-
 -- Projects Table
-CREATE TABLE Projects (
-    ProjectID INT PRIMARY KEY,
-    ProjectName VARCHAR(100) NOT NULL,
-    Description NVARCHAR(MAX),
-    DepartmentID INT,
-    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
+CREATE TABLE projects (
+    project_id SERIAL PRIMARY KEY,
+    project_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    department_id INT,
+    FOREIGN KEY (department_id) REFERENCES departments(department_id) ON DELETE SET NULL
 );
 
 -- ProjectAssignments Table
-CREATE TABLE ProjectAssignments (
-    AssignmentID INT PRIMARY KEY,
-    EmployeeID INT,
-    ProjectID INT,
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID),
-    FOREIGN KEY (ProjectID) REFERENCES Projects(ProjectID)
+CREATE TABLE project_assignments (
+    assignment_id SERIAL PRIMARY KEY,
+    employee_id UUID,
+    project_id INT,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE,
+    FOREIGN KEY (project_id) REFERENCES projects(project_id) ON DELETE CASCADE
 );
 
 -- Timesheets Table
-CREATE TABLE Timesheets (
-    TimesheetID INT PRIMARY KEY,
-    EmployeeID INT,
-    ProjectID INT,
-    Date DATE NOT NULL,
-    HoursWorked DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID),
-    FOREIGN KEY (ProjectID) REFERENCES Projects(ProjectID)
+CREATE TABLE timesheets (
+    timesheet_id SERIAL PRIMARY KEY,
+    employee_id UUID,
+    timesheet_date DATE,
+    weeks VARCHAR(10),
+    period_from DATE,
+    period_to DATE,
+    office_holidays INTEGER,
+    pto_leave INTEGER,
+    days_worked INTEGER,
+    total_hours_worked INTEGER,
+    timesheets_attached BOOLEAN,
+    purchase_order VARCHAR(50),
+    remarks VARCHAR(255),
+    submitted_date DATE NULL,
+    hours_worked DECIMAL(10,2) NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE
 );
 
-
---Leave Record
-CREATE TABLE LeaveRecords (
-    LeaveRecordID INT PRIMARY KEY,
-    EmployeeID INT NOT NULL,
-    LeaveTypeID INT NOT NULL,
-    TotalLeaves INT NOT NULL,
-    RemainingLeaves INT NOT NULL,
-    NegativeLeaves INT DEFAULT 0,
-    StartDate DATE NOT NULL,
-    EndDate DATE NOT NULL,
-    Reason NVARCHAR(MAX),
-    Status VARCHAR(20) NOT NULL DEFAULT 'Pending',
-    RequestDate DATE NOT NULL,
-    LastUpdated DATETIME DEFAULT GETDATE(),
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID),
-    FOREIGN KEY (LeaveTypeID) REFERENCES LeaveTypes(LeaveTypeID)
+-- LeaveTypes Table
+CREATE TABLE leave_types (
+    leave_type_id SERIAL PRIMARY KEY,
+    leave_type_name TEXT NOT NULL UNIQUE
 );
 
-
---Leave Types
-CREATE TABLE LeaveTypes (
-    LeaveTypeID INT PRIMARY KEY,
-    LeaveTypeName NVARCHAR(50) NOT NULL UNIQUE
+-- LeaveRecords Table
+CREATE TABLE leave_records (
+    leave_record_id SERIAL PRIMARY KEY,
+    employee_id UUID NOT NULL,
+    leave_type_id INT NOT NULL,
+    total_leaves INT NOT NULL,
+    remaining_leaves INT NOT NULL,
+    negative_leaves INT DEFAULT 0,
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    reason TEXT,
+    status VARCHAR(20) NOT NULL DEFAULT 'Pending',
+    request_date DATE NOT NULL,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE,
+    FOREIGN KEY (leave_type_id) REFERENCES leave_types(leave_type_id) ON DELETE CASCADE
 );
 
 -- LeaveEncashment Table
-CREATE TABLE LeaveEncashment (
-    EncashmentID INT PRIMARY KEY,
-    EmployeeID INT,
-    EncashmentDate DATE NOT NULL,
-    LeaveDays INT NOT NULL,
-    EncashmentAmount DECIMAL(15, 2) NOT NULL,
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+CREATE TABLE leave_encashment (
+    encashment_id SERIAL PRIMARY KEY,
+    employee_id UUID,
+    encashment_date DATE NOT NULL,
+    leave_days INT NOT NULL,
+    encashment_amount DECIMAL(15, 2) NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE
 );
 
 -- Attendance Table
-CREATE TABLE Attendance (
-    AttendanceID INT PRIMARY KEY,
-    EmployeeID INT,
-    Date DATE NOT NULL,
-    CheckInTime TIME,
-    CheckOutTime TIME,
-    Status VARCHAR(20) NOT NULL,
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+CREATE TABLE attendance (
+    attendance_id SERIAL PRIMARY KEY,
+    employee_id UUID,
+    attendance_date DATE NOT NULL,
+    check_in_time TIME,
+    check_out_time TIME,
+    status VARCHAR(20) NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE
 );
 
 -- YearlyLeavePlan Table
-CREATE TABLE YearlyLeavePlan (
-    PlanID INT PRIMARY KEY,
-    EmployeeID INT,
-    Year INT NOT NULL,
-    LeaveDays INT NOT NULL,
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+CREATE TABLE yearly_leave_plan (
+    plan_id SERIAL PRIMARY KEY,
+    employee_id UUID,
+    plan_year INT NOT NULL,
+    leave_days INT NOT NULL,
+    leave_date DATE NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE
 );
 
 -- Notifications Table
-CREATE TABLE Notifications (
-    NotificationID INT PRIMARY KEY,
-    EmployeeID INT,
-    Message NVARCHAR(MAX) NOT NULL,
-    Date DATE NOT NULL,
-    Status VARCHAR(20) NOT NULL DEFAULT 'Unread',
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+CREATE TABLE notifications (
+    notification_id SERIAL PRIMARY KEY,
+    employee_id UUID,
+    message TEXT NOT NULL,
+    notification_date DATE NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'Unread',
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE
 );
 
 -- EmailTemplates Table
-CREATE TABLE EmailTemplates (
-    TemplateID INT PRIMARY KEY,
-    TemplateName VARCHAR(100) NOT NULL,
-    Subject VARCHAR(255),
-    Body NVARCHAR(MAX)
+CREATE TABLE email_templates (
+    template_id SERIAL PRIMARY KEY,
+    template_name VARCHAR(100) NOT NULL,
+    subject VARCHAR(255),
+    body TEXT
 );
 
 -- Reminders Table
-CREATE TABLE Reminders (
-    ReminderID INT PRIMARY KEY,
-    EmployeeID INT,
-    Message NVARCHAR(MAX) NOT NULL,
-    ReminderDate DATE NOT NULL,
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+CREATE TABLE reminders (
+    reminder_id SERIAL PRIMARY KEY,
+    employee_id UUID,
+    message TEXT NOT NULL,
+    reminder_datetime TIMESTAMP NOT NULL,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE
 );
 
 -- Storage Table
-CREATE TABLE Storage (
-    StorageID INT PRIMARY KEY,
-    DocumentName VARCHAR(255) NOT NULL,
-    DocumentType VARCHAR(50),
-    UploadDate DATE,
-    FilePath VARCHAR(255)
+CREATE TABLE docstorage (
+    storage_id SERIAL PRIMARY KEY,
+    document_name VARCHAR(255) NOT NULL,
+    document_type VARCHAR(50),
+    upload_date DATE,
+    file_path VARCHAR(255)
 );
 
 -- Certifications Table
-CREATE TABLE Certifications (
-    CertificationID INT PRIMARY KEY,
-    EmployeeID INT,
-    CertificationName VARCHAR(100) NOT NULL,
-    IssuingOrganization VARCHAR(100),
-    IssueDate DATE,
-    ExpiryDate DATE,
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+CREATE TABLE certifications (
+    certification_id SERIAL PRIMARY KEY,
+    employee_id UUID,
+    certification_name VARCHAR(100) NOT NULL,
+    issuing_organization VARCHAR(100),
+    issue_date DATE,
+    status VARCHAR(15),
+    completion_status VARCHAR(15),
+    start_date DATE,
+    end_date DATE,
+    expiry_date DATE,
+    certificate_file VARCHAR(255),
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE
 );
 
 -- Articles Table
-CREATE TABLE Articles (
-    ArticleID INT PRIMARY KEY,
-    Title VARCHAR(100) NOT NULL,
-    Content NVARCHAR(MAX),
-    AuthorID INT,
-    PublishDate DATE,
-    FOREIGN KEY (AuthorID) REFERENCES Employees(EmployeeID)
+CREATE TABLE articles (
+    article_id SERIAL PRIMARY KEY,
+    title VARCHAR(100) NOT NULL,
+    content TEXT,
+    author_id UUID,
+    publish_date DATE,
+    FOREIGN KEY (author_id) REFERENCES employees(employee_id) ON DELETE CASCADE
 );
 
 -- Learning Table
-CREATE TABLE Learning (
-    LearningID INT PRIMARY KEY,
-    EmployeeID INT,
-    CourseName VARCHAR(100) NOT NULL,
-    Provider VARCHAR(100),
-    StartDate DATE,
-    EndDate DATE,
-    Status VARCHAR(20),
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+CREATE TABLE learning (
+    learning_id SERIAL PRIMARY KEY,
+    author_id UUID,
+    course_name VARCHAR(100) NOT NULL,
+    status VARCHAR(20),
+    file VARCHAR(100),
+    FOREIGN KEY (author_id) REFERENCES employees(employee_id) ON DELETE CASCADE
 );
 
 -- OnBoarding Table
-CREATE TABLE OnBoarding (
-    OnBoardingID INT PRIMARY KEY,
-    EmployeeID INT,
-    OnBoardingDate DATE NOT NULL,
-    Status VARCHAR(20) NOT NULL,
-    Remarks NVARCHAR(MAX),
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+CREATE TABLE onboarding (
+    onboarding_id SERIAL PRIMARY KEY,
+    employee_id UUID,
+    onboarding_date DATE NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    remarks TEXT,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE
 );
 
 -- Vacancies Table
-CREATE TABLE Vacancies (
-    VacancyID INT PRIMARY KEY,
-    JobTitle VARCHAR(100) NOT NULL,
-    Description NVARCHAR(MAX),
-    DepartmentID INT,
-    PostedDate DATE,
-    ClosingDate DATE,
-    Status VARCHAR(20),
-    FOREIGN KEY (DepartmentID) REFERENCES Departments(DepartmentID)
+CREATE TABLE vacancies (
+    vacancy_id SERIAL PRIMARY KEY,
+    job_title VARCHAR(100) NOT NULL,
+    description TEXT,
+    department_id INT,
+    posted_date DATE,
+    closing_date DATE,
+    status VARCHAR(20),
+    FOREIGN KEY (department_id) REFERENCES departments(department_id) ON DELETE SET NULL
 );
 
 -- Assets Table
-CREATE TABLE Assets (
-    AssetID INT PRIMARY KEY,
-    AssetName VARCHAR(100) NOT NULL,
-    Description NVARCHAR(MAX),
-    PurchaseDate DATE,
-    WarrantyExpiryDate DATE,
-    AssignedTo INT,
-    Condition VARCHAR(50) NOT NULL,
-    FOREIGN KEY (AssignedTo) REFERENCES Employees(EmployeeID)
+CREATE TABLE assets (
+    asset_id SERIAL PRIMARY KEY,
+    asset_name VARCHAR(100) NOT NULL,
+    description TEXT,
+    purchase_date DATE,
+    warranty_expiry_date DATE,
+    assigned_to UUID,
+    asset_status VARCHAR(50) NOT NULL,
+    FOREIGN KEY (assigned_to) REFERENCES employees(employee_id) ON DELETE SET NULL
 );
 
 -- AssetServiceHistory Table
-CREATE TABLE AssetServiceHistory (
-    ServiceID INT PRIMARY KEY,
-    AssetID INT,
-    ServiceDate DATE NOT NULL,
-    ServiceReason NVARCHAR(MAX),
-    ServiceDetails NVARCHAR(MAX),
-    FOREIGN KEY (AssetID) REFERENCES Assets(AssetID)
+CREATE TABLE asset_service_history (
+    service_id SERIAL PRIMARY KEY,
+    asset_id INT,
+    service_date DATE NOT NULL,
+    service_reason TEXT,
+    service_details TEXT,
+    FOREIGN KEY (asset_id) REFERENCES assets(asset_id) ON DELETE CASCADE
 );
 
 -- Resignations Table
-CREATE TABLE Resignations (
-    ResignationID INT PRIMARY KEY,
-    EmployeeID INT,
-    ResignationDate DATE NOT NULL,
-    LastWorkingDate DATE NOT NULL,
-    Reason NVARCHAR(MAX),
-    Status VARCHAR(20) NOT NULL DEFAULT 'Pending',
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID)
+CREATE TABLE resignations (
+    resignation_id SERIAL PRIMARY KEY,
+    employee_id UUID,
+    resignation_date DATE NOT NULL,
+    last_working_date DATE NOT NULL,
+    reason TEXT,
+    status VARCHAR(20) NOT NULL DEFAULT 'Pending',
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE
 );
 
 -- Performance Appraisals Table
-CREATE TABLE PerformanceAppraisals (
-    AppraisalID INT PRIMARY KEY,
-    EmployeeID INT,
-    AppraisalDate DATE NOT NULL,
-    PerformanceScore INT NOT NULL,
-    Comments NVARCHAR(MAX),
-    ReviewerID INT,
-    FOREIGN KEY (EmployeeID) REFERENCES Employees(EmployeeID),
-    FOREIGN KEY (ReviewerID) REFERENCES Employees(EmployeeID)
+CREATE TABLE performance_appraisals (
+    appraisal_id SERIAL PRIMARY KEY,
+    employee_id UUID,
+    appraisal_date DATE NOT NULL,
+    performance_score INT NOT NULL,
+    comments TEXT,
+    reviewer_id UUID,
+    FOREIGN KEY (employee_id) REFERENCES employees(employee_id) ON DELETE CASCADE,
+    FOREIGN KEY (reviewer_id) REFERENCES employees(employee_id) ON DELETE SET NULL
 );
 
-
+-- Config Table
+CREATE TABLE configurations (
+    config_id SERIAL PRIMARY KEY,
+    config_key VARCHAR(100) NOT NULL UNIQUE, -- Unique key for each configuration
+    config_value TEXT NOT NULL, -- Value of the configuration
+    config_type VARCHAR(50) NOT NULL, -- Type of the configuration (e.g., 'string', 'json', 'integer', 'boolean')
+    description TEXT -- Description of the configuration for clarity
+);
